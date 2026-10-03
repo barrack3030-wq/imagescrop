@@ -1,1 +1,112 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Automatically crop one 3600×3000 photo into six 1200×1500 images in your browser."><title>6-Slice Photo Cropper</title><link rel="stylesheet" href="style.css"></head><body><main class="app-shell"><header class="topbar"><div class="brand"><span class="brand-mark">6</span><div><strong>Slice6</strong><small>Photo Cropper</small></div></div><div class="privacy">100% browser-based · Your photos stay on your device</div></header><section class="hero"><div class="eyebrow">Instagram-ready photo splitter</div><h1>Turn one photo into <span>6 perfect panels.</span></h1><p>Upload a 3600 × 3000 px photo and instantly split it into six 1200 × 1500 px images.</p></section><section class="workspace"><div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload photo"><input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden><div class="upload-icon">↑</div><h2>Drop your photo here</h2><p>or <button id="browseBtn" class="text-button" type="button">browse files</button></p><div class="upload-meta">JPG, PNG or WebP · Recommended 3600 × 3000 px</div></div><div id="sourcePanel" class="source-panel hidden"><div class="source-head"><div><span class="label">SOURCE PHOTO</span><strong id="fileName">—</strong><span id="fileSize" class="muted">—</span></div><button id="replaceBtn" class="ghost-button" type="button">Replace</button></div><div class="source-preview-wrap"><canvas id="sourceCanvas"></canvas><div class="grid-overlay" aria-hidden="true"></div></div><div class="source-info"><span id="sourceDimensions">—</span><span>6 slices · 1200 × 1500 px each</span></div></div><div id="resultsPanel" class="results-panel hidden"><div class="results-head"><div><span class="label">OUTPUT</span><h2>Six ready-to-post images</h2></div><div class="actions"><button id="downloadZip" class="primary-button" type="button">Download ZIP</button><button id="downloadAll" class="secondary-button" type="button">Download 6 PNGs</button></div></div><div id="cards" class="cards"></div></div><div id="message" class="message hidden" role="status"></div></section><footer><span>Output: 1200 × 1500 px · PNG</span><span>Processed locally in your browser</span></footer></main><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script src="app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Automatically crop one 3600×3000 photo into six 1200×1500 images in your browser.">
+<title>6-Slice Photo Cropper</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="app-shell">
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">6</span>
+    <div><strong>Slice6</strong><small>Photo Cropper</small></div>
+  </div>
+  <div class="privacy">100% browser-based · Your photos stay on your device</div>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Instagram-ready photo splitter</div>
+  <h1>Turn one photo into <span>6 perfect panels.</span></h1>
+  <p>Upload a 3600 × 3000 px photo, adjust every panel, and export six 1200 × 1500 px images.</p>
+</section>
+
+<section class="workspace">
+  <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload photo">
+    <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+    <div class="upload-icon">↑</div>
+    <h2>Drop your photo here</h2>
+    <p>or <button id="browseBtn" class="text-button" type="button">browse files</button></p>
+    <div class="upload-meta">JPG, PNG or WebP · Recommended 3600 × 3000 px</div>
+  </div>
+
+  <div id="sourcePanel" class="source-panel hidden">
+    <div class="source-head">
+      <div>
+        <span class="label">SOURCE PHOTO</span>
+        <strong id="fileName">—</strong>
+        <span id="fileSize" class="muted">—</span>
+      </div>
+      <button id="replaceBtn" class="ghost-button" type="button">Replace</button>
+    </div>
+    <div class="source-preview-wrap">
+      <canvas id="sourceCanvas"></canvas>
+      <div class="grid-overlay" aria-hidden="true"></div>
+    </div>
+    <div class="source-info">
+      <span id="sourceDimensions">—</span>
+      <span>6 slices · 1200 × 1500 px each · Adjust individually below</span>
+    </div>
+  </div>
+
+  <div id="resultsPanel" class="results-panel hidden">
+    <div class="results-head">
+      <div>
+        <span class="label">OUTPUT</span>
+        <h2>Six ready-to-post images</h2>
+        <p class="results-note">Adjust the crop of any panel before exporting.</p>
+      </div>
+      <div class="actions">
+        <button id="downloadZip" class="primary-button" type="button">Download ZIP</button>
+        <button id="downloadAll" class="secondary-button" type="button">Download 6 PNGs</button>
+      </div>
+    </div>
+    <div id="cards" class="cards"></div>
+  </div>
+
+  <div id="message" class="message hidden" role="status"></div>
+</section>
+
+<footer>
+  <span>Output: 1200 × 1500 px · PNG</span>
+  <span>Processed locally in your browser</span>
+</footer>
+</main>
+
+<div id="cropModal" class="modal hidden" aria-hidden="true">
+  <div class="modal-backdrop" data-close-modal></div>
+  <section class="crop-dialog" role="dialog" aria-modal="true" aria-labelledby="cropTitle">
+    <div class="crop-head">
+      <div>
+        <span class="label">CROP EDITOR</span>
+        <h2 id="cropTitle">Adjust Slice 01</h2>
+        <p>Drag the photo to reposition it. Use the zoom control for closer framing.</p>
+      </div>
+      <button id="closeCrop" class="close-button" type="button" aria-label="Close">×</button>
+    </div>
+
+    <div class="editor-wrap">
+      <canvas id="editorCanvas" width="600" height="750"></canvas>
+      <div class="crop-frame" aria-hidden="true"></div>
+      <div class="drag-hint">DRAG TO REPOSITION</div>
+    </div>
+
+    <div class="crop-controls">
+      <label for="zoomRange">Zoom <strong id="zoomValue">1.00×</strong></label>
+      <input id="zoomRange" type="range" min="1" max="3" step="0.01" value="1">
+      <button id="resetCrop" class="ghost-button" type="button">Reset crop</button>
+    </div>
+
+    <div class="crop-actions">
+      <button id="cancelCrop" class="secondary-button" type="button">Cancel</button>
+      <button id="applyCrop" class="primary-button" type="button">Apply Crop</button>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
